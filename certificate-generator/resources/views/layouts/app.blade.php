@@ -12,6 +12,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Site-wide primary button: orange gradient */
+        .btn-primary {
+            background: linear-gradient(90deg, #f57c00, #ffa726);
+            border-color: #f57c00;
+            color: #fff;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active {
+            background: linear-gradient(90deg, #ef6c00, #fb8c00) !important;
+            border-color: #ef6c00 !important;
+            color: #fff !important;
+        }
+
+        .btn-primary:disabled,
+        .btn-primary.disabled {
+            background: linear-gradient(90deg, #ffcc80, #ffe0b2);
+            border-color: #ffcc80;
+        }
+
+        .btn-check:checked+.btn-primary,
+        .btn-primary:not(:disabled):not(.disabled).active {
+            background: linear-gradient(90deg, #ef6c00, #fb8c00);
+            border-color: #ef6c00;
+        }
+    </style>
     @yield('styles')
 </head>
 

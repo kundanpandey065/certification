@@ -148,15 +148,17 @@ class CertificateService
                 $viewUrl     = route('certificates.download', [$cert->id, 'view']);
                 $downloadUrl = route('certificates.download', [$cert->id, 'download']);
                 return "
-                  <a target='_blank' href='{$viewUrl}'     class='btn btn-sm btn-info mb-1'>
-                    <i class='fa-regular fa-eye'></i>
-                  </a>
-                  <a href='{$downloadUrl}'                  class='btn btn-sm btn-primary mb-1'>
-                    <i class='fa-solid fa-download'></i>
-                  </a>
-                    <button class='btn btn-sm btn-danger mb-1 delete-btn' data-id='{$cert->id}'>
-        <i class='fa-solid fa-trash'></i>
-      </button>
+                  <div class='action-btns'>
+                    <a target='_blank' href='{$viewUrl}' class='btn btn-icon btn-info' title='View'>
+                      <i class='fa-regular fa-eye'></i>
+                    </a>
+                    <a href='{$downloadUrl}' class='btn btn-icon btn-primary' title='Download'>
+                      <i class='fa-solid fa-download'></i>
+                    </a>
+                    <button class='btn btn-icon btn-danger delete-btn' data-id='{$cert->id}' title='Delete'>
+                      <i class='fa-solid fa-trash'></i>
+                    </button>
+                  </div>
                 ";
             })
             ->rawColumns(['action'])

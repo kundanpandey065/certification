@@ -3,99 +3,250 @@
 
 @section('title', 'All Certificates List')
 
+@section('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+    <style>
+        .certificates-page {
+            --brand-start: #0d47a1;
+            --brand-end: #1976d2;
+        }
+
+        .certificates-page .page-header h2 {
+            font-weight: 700;
+            color: #1b2a4a;
+        }
+
+        .certificates-page .page-header p {
+            font-size: .95rem;
+        }
+
+        /* ---- Unified button sizing ---- */
+        .certificates-page .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .45rem;
+            height: 42px;
+            padding: 0 1.15rem;
+            font-size: .9rem;
+            font-weight: 600;
+            border-radius: .55rem;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        .certificates-page .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border-radius: .5rem;
+            font-size: .85rem;
+        }
+
+        .certificates-page .action-btns {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            flex-wrap: nowrap;
+        }
+
+        .certificates-page .form-select,
+        .certificates-page .form-control {
+            height: 42px;
+            border-radius: .55rem;
+        }
+
+        .certificates-page .form-label {
+            font-size: .8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            color: #6b7280;
+            margin-bottom: .35rem;
+        }
+
+        .certificates-page .card {
+            border: none;
+            border-radius: .9rem;
+            box-shadow: 0 2px 10px rgba(20, 30, 60, .06);
+        }
+
+        .certificates-page .section-title {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #6b7280;
+        }
+
+        .certificates-page .import-dropzone {
+            border: 1.5px dashed #b6c6e3;
+            border-radius: .75rem;
+            background: #f6f9ff;
+            padding: 1rem 1.25rem;
+        }
+
+        .certificates-page .table-card .card-header {
+            background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+            color: #fff;
+            border-top-left-radius: .9rem;
+            border-top-right-radius: .9rem;
+            padding: 1rem 1.35rem;
+        }
+
+        .certificates-page table#myTable thead th {
+            background-color: #eef3fb;
+            color: #1b2a4a;
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .02em;
+            white-space: nowrap;
+            border-bottom: 2px solid #dbe4f3;
+        }
+
+        .certificates-page table#myTable tbody tr:hover {
+            background-color: #f4f8ff;
+        }
+
+        .certificates-page table#myTable td {
+            vertical-align: middle;
+            font-size: .875rem;
+        }
+
+        .certificates-page .badge-gender-m {
+            background-color: #0d6efd;
+        }
+
+        .certificates-page .badge-gender-f {
+            background-color: #d63384;
+        }
+
+        .certificates-page .badge-gender-o {
+            background-color: #6c757d;
+        }
+
+        .certificates-page .badge-level {
+            background-color: #0dcaf0;
+            color: #063846;
+        }
+
+        .certificates-page .dataTables_wrapper .dataTables_filter input,
+        .certificates-page .dataTables_wrapper .dataTables_length select {
+            border-radius: .5rem;
+            border: 1px solid #dbe4f3;
+        }
+
+        .certificates-page .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: linear-gradient(90deg, var(--brand-start), var(--brand-end)) !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: .4rem;
+        }
+
+        .certificates-page .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: .4rem;
+        }
+    </style>
+@endsection
+
 @section('content')
-    <div class="container-fluid mt-4">
+    <div class="container-fluid mt-4 certificates-page">
 
         {{-- Success message --}}
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        {{-- Filters + Import --}}
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="row g-2 align-items-center">
-                    {{-- Title --}}
-                    <div class="col-auto">
-                        <h5 class="mb-0">All Certificates</h5>
-                    </div>
+        {{-- Page header --}}
+        <div class="page-header mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h2 class="mb-1"><i class="fa-solid fa-certificate text-primary me-2"></i>All Certificates</h2>
+                <p class="text-muted mb-0">Browse, filter and manage every issued certificate in one place.</p>
+            </div>
+            <div>
+                <button id="deleteAllBtn" type="button" class="btn btn-action btn-danger">
+                    <i class="fa-solid fa-trash-can"></i> Delete All
+                </button>
+                <form id="deleteAllForm" action="{{ route('certificates.deleteAll') }}" method="POST"
+                    style="display:none;">
+                    @csrf
+                </form>
+            </div>
+        </div>
 
-                    {{-- Sector --}}
-                    <div class="col-auto">
-                        <select id="sector" class="form-select form-select-sm">
-                            <option value="">All Sectors</option>
-                            @foreach ($sectors as $s)
-                                <option value="{{ $s }}">{{ $s }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+        <div class="row g-3 mb-4">
+            {{-- Filters --}}
+            <div class="col-12 col-xl-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="section-title mb-3"><i class="fa-solid fa-filter me-1"></i> Filters</div>
+                        <div class="d-flex flex-column gap-3">
+                            <div>
+                                <label class="form-label"><i class="fa-solid fa-industry me-1"></i>Sector</label>
+                                <select id="sector" class="form-select">
+                                    <option value="">All Sectors</option>
+                                    @foreach ($sectors as $s)
+                                        <option value="{{ $s }}">{{ $s }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                    {{-- District --}}
-                    <div class="col-auto">
-                        <select id="district" class="form-select form-select-sm" disabled>
-                            <option value="">All Districts</option>
-                        </select>
-                    </div>
+                            <div>
+                                <label class="form-label"><i class="fa-solid fa-map-location-dot me-1"></i>District</label>
+                                <select id="district" class="form-select" disabled>
+                                    <option value="">All Districts</option>
+                                </select>
+                            </div>
 
-                    {{-- School --}}
-                    <div class="col-auto">
-                        <select id="school" class="form-select form-select-sm" disabled>
-                            <option value="">All Schools</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <select id="class_standard" class="form-select form-select-sm" disabled>
-                            <option value="">All Classes</option>
-                        </select>
-                    </div>
+                            <div>
+                                <label class="form-label"><i class="fa-solid fa-school me-1"></i>School</label>
+                                <select id="school" class="form-select" disabled>
+                                    <option value="">All Schools</option>
+                                </select>
+                            </div>
 
-                    {{-- Apply --}}
-                    <div class="col-auto">
-                        <button id="filterBtn" class="btn btn-sm btn-secondary">
-                            Apply Filters
-                        </button>
-                    </div>
+                            <div>
+                                <label class="form-label"><i class="fa-solid fa-layer-group me-1"></i>Class /
+                                    Std</label>
+                                <select id="class_standard" class="form-select" disabled>
+                                    <option value="">All Classes</option>
+                                </select>
+                            </div>
 
-
-
-                    {{-- Spacer (push import form right) --}}
-                    <div class="col"> {{-- Delete All --}}
-                        {{-- Delete All --}}
-                        <div class="row mb-2">
-                            <div class="col-auto">
-                                <button id="deleteAllBtn" type="button" class="btn btn-md btn-danger">
-                                    Delete All Certificates
+                            <div>
+                                <button id="filterBtn" class="btn btn-action btn-primary w-100">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Apply Filters
                                 </button>
-                                <form id="deleteAllForm" action="{{ route('certificates.deleteAll') }}" method="POST"
-                                    style="display:none;">
-                                    @csrf
-                                </form>
                             </div>
                         </div>
-                        <form id="deleteForm" method="POST" style="display:none;">
-                            @csrf
-                        </form>
                     </div>
+                </div>
+            </div>
 
-                    {{-- Import form --}}
-                    <div class="col-auto">
-                        <form action="{{ route('certificates.import') }}" method="POST" enctype="multipart/form-data"
-                            class="d-flex align-items-center g-2">
+            {{-- Import --}}
+            <div class="col-12 col-xl-8">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="section-title mb-3"><i class="fa-solid fa-file-import me-1"></i> Import Data
+                        </div>
+                        <form action="{{ route('certificates.import') }}" method="POST"
+                            enctype="multipart/form-data"
+                            class="import-dropzone d-flex flex-column flex-md-row align-items-md-center gap-2 flex-grow-1">
                             @csrf
-                            <input type="file" name="file" accept=".csv" class="form-control form-control-sm"
-                                required>
-
-                            <button class="btn btn-sm btn-primary ms-2">
-                                Import
+                            <input type="file" name="file" accept=".csv" class="form-control" required>
+                            <button class="btn btn-action btn-primary">
+                                <i class="fa-solid fa-upload"></i> Import CSV
                             </button>
                         </form>
-                        <span class="text-muted">⚠️ CSV file import only.</span>
+                        <span class="text-muted small mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>CSV
+                            file import only.</span>
                     </div>
                 </div>
             </div>
         </div>
-
-
 
         {{-- Hidden form for individual delete; we'll swap its action dynamically --}}
         <form id="deleteForm" method="POST" style="display:none;">
@@ -104,9 +255,12 @@
         </form>
 
         {{-- DataTable --}}
-        <div class="card">
+        <div class="card table-card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="fw-semibold"><i class="fa-solid fa-list me-2"></i>Certificate Records</span>
+            </div>
             <div class="card-body table-responsive">
-                <table id="myTable" class="table table-bordered table-striped" style="width:100%">
+                <table id="myTable" class="table table-bordered table-striped align-middle" style="width:100%">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -132,9 +286,10 @@
             </div>
         </div>
     </div>
+@endsection
 
-    {{-- DataTables CSS/JS --}}
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+@section('scripts')
+    {{-- DataTables JS --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
 
@@ -187,7 +342,14 @@
                     },
                     {
                         data: 'gender',
-                        name: 'gender'
+                        name: 'gender',
+                        render: function(data) {
+                            if (!data) return '';
+                            const v = data.toString().trim().toLowerCase();
+                            const cls = v.startsWith('m') ? 'badge-gender-m' :
+                                v.startsWith('f') ? 'badge-gender-f' : 'badge-gender-o';
+                            return `<span class="badge rounded-pill ${cls}">${data}</span>`;
+                        }
                     },
                     {
                         data: 'class_standard',
@@ -219,7 +381,11 @@
                     },
                     {
                         data: 'level',
-                        name: 'level'
+                        name: 'level',
+                        render: function(data) {
+                            if (!data) return '';
+                            return `<span class="badge rounded-pill badge-level">${data}</span>`;
+                        }
                     },
                     {
                         data: 'candidate_id',
@@ -272,7 +438,7 @@
                     if (res.isConfirmed) {
                         // point the hidden form at the right URL and submit via POST
                         $('#deleteForm')
-                            .attr('action', `{{url('/')}}/certificates/${id}/delete`)
+                            .attr('action', `{{ url('/') }}/certificates/${id}/delete`)
                             .submit();
                     }
                 });
@@ -341,6 +507,4 @@
             });
         });
     </script>
-
-
 @endsection
