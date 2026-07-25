@@ -298,17 +298,30 @@ class CertificateService
             ])->values();
         };
 
+        $monthlyTrend = Certificate::selectRaw("DATE_FORMAT(date_of_issue, '%Y-%m') as ym, COUNT(*) as c")
+            ->whereNotNull('date_of_issue')
+            ->groupBy('ym')
+            ->orderBy('ym')
+            ->pluck('c', 'ym')
+            ->map(fn($count, $ym) => [
+                'label' => Carbon::createFromFormat('Y-m', $ym)->format('M Y'),
+                'count' => $count,
+            ])->values();
+
         return [
-            'total'         => Certificate::count(),
-            'districts'     => $countDistinct('district'),
-            'schools'       => $countDistinct('school_code'),
-            'sectors'       => $countDistinct('ssc_name'),
-            'job_roles'     => $countDistinct('job_role'),
-            'levels'        => $countDistinct('level'),
-            'gender'        => $breakdown('gender'),
-            'class'         => $breakdown('class_standard'),
-            'level'         => $breakdown('level', fn($k) => "Level {$k}"),
-            'top_districts' => $breakdown('district', byCount: true, limit: 5),
+            'total'          => Certificate::count(),
+            'districts'      => $countDistinct('district'),
+            'schools'        => $countDistinct('school_code'),
+            'sectors'        => $countDistinct('ssc_name'),
+            'job_roles'      => $countDistinct('job_role'),
+            'levels'         => $countDistinct('level'),
+            'gender'         => $breakdown('gender'),
+            'class'          => $breakdown('class_standard'),
+            'level'          => $breakdown('level', fn($k) => "Level {$k}"),
+            'top_districts'  => $breakdown('district', byCount: true, limit: 5),
+            'monthly_trend'  => $monthlyTrend,
+            'job_role_split' => $breakdown('job_role', byCount: true, limit: 6),
+            'top_schools'    => $breakdown('school_name', byCount: true, limit: 6),
         ];
     }
 

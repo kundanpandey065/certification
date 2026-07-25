@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BulkCertificateController;
 use App\Http\Controllers\BulkExportController;
 use App\Http\Controllers\Auth\LoginController;
@@ -10,11 +11,11 @@ use App\Http\Controllers\Auth\LoginController;
 
 
 // When someone visits "/", redirect them:
-// - If logged in → certificates.index
+// - If logged in → dashboard
 // - If guest     → login form
 Route::get('/', function () {
     return Auth::check()
-        ? redirect()->route('certificates.index')
+        ? redirect()->route('dashboard')
         : redirect()->route('login');
 });
 // Guest only: login
@@ -27,6 +28,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Certificates CRUD & filtering
     Route::get('certificates-list',                     [CertificateController::class, 'index'])->name('certificates.index');
