@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\Request;
+use App\Models\Certificate;
 use App\Repositories\CertificateRepositoryInterface;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Http\UploadedFile;
@@ -264,6 +265,51 @@ class CertificateService
             ]);
 
         return $pdf->output();
+    }
+
+    /**
+     * Aggregate, dashboard-ready overview metrics for the whole dataset.
+     */
+    public function getOverviewStats(): array
+    {
+        $countDistinct = fn(string $column) => Certificate::whereNotNull($column)
+            ->where($column, '!=', '')
+            ->distinct()
+            ->count($column);
+
+        $breakdown = function (string $column, ?callable $labelFn = null, ?int $limit = null, bool $byCount = false) {
+            $query = Certificate::selectRaw("{$column}, COUNT(*) as c")
+                ->whereNotNull($column)
+                ->where($column, '!=', '')
+                ->groupBy($column);
+
+            $query = $byCount ? $query->orderByDesc('c') : $query->orderBy($column);
+            if ($limit) {
+                $query->limit($limit);
+            }
+
+            $counts = $query->pluck('c', $column);
+            $max = $counts->max() ?: 1;
+
+            return $counts->map(fn($count, $key) => [
+                'label' => $labelFn ? $labelFn($key) : $key,
+                'count' => $count,
+                'pct'   => (int) round($count / $max * 100),
+            ])->values();
+        };
+
+        return [
+            'total'         => Certificate::count(),
+            'districts'     => $countDistinct('district'),
+            'schools'       => $countDistinct('school_code'),
+            'sectors'       => $countDistinct('ssc_name'),
+            'job_roles'     => $countDistinct('job_role'),
+            'levels'        => $countDistinct('level'),
+            'gender'        => $breakdown('gender'),
+            'class'         => $breakdown('class_standard'),
+            'level'         => $breakdown('level', fn($k) => "Level {$k}"),
+            'top_districts' => $breakdown('district', byCount: true, limit: 5),
+        ];
     }
 
     public function delete(int $id): bool

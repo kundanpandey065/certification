@@ -26,8 +26,11 @@ class CertificateController extends Controller
             return $this->service->listDataTable($request);
         }
 
+        // Overview metrics for the stats matrix
+        $stats = $this->service->getOverviewStats();
+
         // Otherwise serve the main view
-        return view('certificates.index', compact('sectors'));
+        return view('certificates.index', compact('sectors', 'stats'));
     }
 
     // AJAX: districts for a sector
