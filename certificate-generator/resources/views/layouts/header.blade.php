@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #0d47a1, #1976d2);">
+<nav class="navbar navbar-expand-lg navbar-light" style="background: linear-gradient(90deg, #ffb74d, #ffe0b2);">
     <div class="container-fluid">
         {{-- Brand with logo --}}
         <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">

@@ -13,9 +13,9 @@
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        /* Site-wide primary button: orange gradient */
+        /* Site-wide primary button: solid orange */
         .btn-primary {
-            background: linear-gradient(90deg, #f57c00, #ffa726);
+            background: #f57c00;
             border-color: #f57c00;
             color: #fff;
         }
@@ -23,21 +23,33 @@
         .btn-primary:hover,
         .btn-primary:focus,
         .btn-primary:active {
-            background: linear-gradient(90deg, #ef6c00, #fb8c00) !important;
+            background: #ef6c00 !important;
             border-color: #ef6c00 !important;
             color: #fff !important;
         }
 
         .btn-primary:disabled,
         .btn-primary.disabled {
-            background: linear-gradient(90deg, #ffcc80, #ffe0b2);
+            background: #ffcc80;
             border-color: #ffcc80;
         }
 
         .btn-check:checked+.btn-primary,
         .btn-primary:not(:disabled):not(.disabled).active {
-            background: linear-gradient(90deg, #ef6c00, #fb8c00);
+            background: #ef6c00;
             border-color: #ef6c00;
+        }
+
+        /* Header text: black */
+        .navbar,
+        .navbar .navbar-brand,
+        .navbar .nav-link,
+        .navbar .dropdown-item {
+            color: #000 !important;
+        }
+
+        .navbar .nav-link.active {
+            font-weight: bold;
         }
     </style>
     @yield('styles')
