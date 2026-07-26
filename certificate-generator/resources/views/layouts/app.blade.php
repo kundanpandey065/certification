@@ -51,6 +51,44 @@
         .navbar .nav-link.active {
             font-weight: bold;
         }
+
+        /* Brand icon + 3D heading */
+        .navbar-brand .brand-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffd54f, #f57c00);
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, 0.6),
+                inset 0 -3px 4px rgba(0, 0, 0, 0.25),
+                0 3px 6px rgba(0, 0, 0, 0.3);
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .navbar-brand .brand-icon i {
+            color: #fff8e1;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+        }
+
+        .navbar-brand .brand-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #8a4b00 !important;
+            background: linear-gradient(180deg, #fff3e0 0%, #ffcc80 45%, #f57c00 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow:
+                0 1px 0 #fff8e1,
+                0 2px 0 #ffe0b2,
+                0 3px 0 #ffcc80,
+                0 4px 3px rgba(0, 0, 0, 0.35);
+        }
     </style>
     @yield('styles')
 </head>
