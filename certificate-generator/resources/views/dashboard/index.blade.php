@@ -276,35 +276,13 @@
                         <div class="section-title mb-3"><i class="fa-solid fa-venus-mars me-1"></i> Gender
                             Distribution</div>
 
-                        @php
-                            $genderColors = [
-                                'male' => '#0d6efd',
-                                'female' => '#d63384',
-                            ];
-                        @endphp
-
-                        <div class="segmented-bar">
-                            @forelse ($stats['gender'] as $g)
-                                <span
-                                    style="width: {{ $g['pct'] }}%; background-color: {{ $genderColors[strtolower($g['label'])] ?? '#6c757d' }};"></span>
-                            @empty
-                                <span style="width: 100%; background-color: #e3e8f0;"></span>
-                            @endforelse
+                        <div class="chart-canvas-wrap chart-tall">
+                            @if ($stats['gender']->isNotEmpty())
+                                <canvas id="genderChart"></canvas>
+                            @else
+                                <div class="chart-empty text-muted">No data available yet.</div>
+                            @endif
                         </div>
-
-                        @forelse ($stats['gender'] as $g)
-                            <div class="legend-row">
-                                <span>
-                                    <span class="legend-dot"
-                                        style="background-color: {{ $genderColors[strtolower($g['label'])] ?? '#6c757d' }};"></span>
-                                    {{ $g['label'] }}
-                                </span>
-                                <span class="fw-semibold">{{ number_format($g['count']) }}
-                                    <span class="text-muted">({{ $g['pct'] }}%)</span></span>
-                            </div>
-                        @empty
-                            <p class="text-muted mb-0">No data available yet.</p>
-                        @endforelse
                     </div>
                 </div>
             </div>
@@ -390,7 +368,7 @@
         {{-- Chart visualizations --}}
         <div class="row g-3 mb-4">
             {{-- Certificates issued over time --}}
-            <div class="col-12 col-xl-5">
+            <div class="col-12 col-xl-3">
                 <div class="card chart-card h-100">
                     <div class="card-body">
                         <div class="section-title mb-3"><i class="fa-solid fa-chart-line me-1"></i> Certificates
@@ -424,18 +402,26 @@
             </div>
 
             {{-- Top schools --}}
-            <div class="col-12 col-xl-4">
+            <div class="col-12 col-xl-6">
                 <div class="card chart-card h-100">
                     <div class="card-body">
                         <div class="section-title mb-3"><i class="fa-solid fa-school-flag me-1"></i> Top Schools by
                             Certificates</div>
-                        <div class="chart-canvas-wrap chart-tall">
-                            @if ($stats['top_schools']->isNotEmpty())
-                                <canvas id="topSchoolsChart"></canvas>
-                            @else
-                                <div class="chart-empty text-muted">No data available yet.</div>
-                            @endif
-                        </div>
+                        @forelse ($stats['top_schools'] as $s)
+                            <div class="mini-bar-row">
+                                <div class="mini-bar-label">
+                                    <span>{{ $s['label'] }}</span>
+                                    <span>{{ number_format($s['count']) }}</span>
+                                </div>
+                                <div class="mini-bar-track">
+                                    <div class="mini-bar-fill"
+                                        style="width: {{ $s['pct'] }}%; background: linear-gradient(90deg, #382b80, #4a3aa7);">
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-muted mb-0">No data available yet.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -445,15 +431,69 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script>
         (function () {
+            Chart.register(ChartDataLabels);
+
             const inkSecondary = '#52514e';
             const inkMuted = '#898781';
             const gridline = '#e1e0d9';
 
             const trendData = @json($stats['monthly_trend']);
             const jobRoleData = @json($stats['job_role_split']);
-            const topSchoolsData = @json($stats['top_schools']);
+            const genderData = @json($stats['gender']);
+
+            if (genderData.length) {
+                const genderColors = { male: '#2a78d6', female: '#eb6834' };
+                new Chart(document.getElementById('genderChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: genderData.map(d => d.label),
+                        datasets: [{
+                            data: genderData.map(d => d.count),
+                            backgroundColor: genderData.map(d => genderColors[d.label.toLowerCase()] ?? '#6c757d'),
+                            borderColor: '#fff',
+                            borderWidth: 2,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '62%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: inkSecondary, usePointStyle: true, boxWidth: 8, padding: 12 },
+                            },
+                            tooltip: {
+                                backgroundColor: '#fff',
+                                titleColor: '#1b2a4a',
+                                bodyColor: inkSecondary,
+                                borderColor: gridline,
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: {
+                                    label: (item) => {
+                                        const total = item.dataset.data.reduce((a, b) => a + b, 0);
+                                        const pct = total ? Math.round(item.raw / total * 100) : 0;
+                                        return ` ${item.label}: ${item.raw.toLocaleString()} (${pct}%)`;
+                                    },
+                                },
+                            },
+                            datalabels: {
+                                color: '#fff',
+                                font: { weight: 700, size: 13 },
+                                formatter: (value, ctx) => {
+                                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = total ? Math.round(value / total * 100) : 0;
+                                    return `${value.toLocaleString()}\n(${pct}%)`;
+                                },
+                            },
+                        },
+                    },
+                });
+            }
 
             if (trendData.length) {
                 new Chart(document.getElementById('trendChart'), {
@@ -490,6 +530,7 @@
                                 padding: 10,
                                 displayColors: false,
                             },
+                            datalabels: { display: false },
                         },
                         scales: {
                             x: { grid: { display: false }, ticks: { color: inkMuted } },
@@ -533,63 +574,7 @@
                                 borderWidth: 1,
                                 padding: 10,
                             },
-                        },
-                    },
-                });
-            }
-
-            if (topSchoolsData.length) {
-                const truncate = (label, max = 24) =>
-                    label.length > max ? label.slice(0, max - 1) + '…' : label;
-
-                new Chart(document.getElementById('topSchoolsChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: topSchoolsData.map(d => d.label),
-                        datasets: [{
-                            label: 'Certificates',
-                            data: topSchoolsData.map(d => d.count),
-                            backgroundColor: '#4a3aa7',
-                            borderRadius: 4,
-                            barThickness: 18,
-                        }],
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: { padding: { left: 4 } },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: '#fff',
-                                titleColor: '#1b2a4a',
-                                bodyColor: inkSecondary,
-                                borderColor: gridline,
-                                borderWidth: 1,
-                                padding: 10,
-                                displayColors: false,
-                                callbacks: {
-                                    title: (items) => topSchoolsData[items[0].dataIndex].label,
-                                },
-                            },
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                grid: { color: gridline },
-                                ticks: { color: inkMuted, precision: 0 },
-                            },
-                            y: {
-                                grid: { display: false },
-                                ticks: {
-                                    color: inkSecondary,
-                                    autoSkip: false,
-                                    callback: function (value) {
-                                        return truncate(this.getLabelForValue(value));
-                                    },
-                                },
-                            },
+                            datalabels: { display: false },
                         },
                     },
                 });
