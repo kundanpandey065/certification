@@ -87,6 +87,41 @@
             border-radius: .75rem;
             background: #f6f9ff;
             padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: border-color .15s ease, background-color .15s ease;
+        }
+
+        .certificates-page .import-dropzone:hover,
+        .certificates-page .import-dropzone.is-dragover {
+            border-color: var(--brand-end);
+            background: #eef4ff;
+        }
+
+        .certificates-page .import-dropzone-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e3ecfc;
+            color: var(--brand-start);
+            font-size: 1.3rem;
+        }
+
+        .certificates-page .import-requirements {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: .82rem;
+            color: #5c6b81;
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+        }
+
+        .certificates-page .import-requirements li i {
+            width: 16px;
         }
 
         .certificates-page .table-card .card-header {
@@ -228,21 +263,40 @@
 
             {{-- Import --}}
             <div class="col-12 col-xl-8">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
+                <div class="card">
+                    <div class="card-body d-flex flex-column justify-content-center">
                         <div class="section-title mb-3"><i class="fa-solid fa-file-import me-1"></i> Import Data
                         </div>
-                        <form action="{{ route('certificates.import') }}" method="POST"
-                            enctype="multipart/form-data"
-                            class="import-dropzone d-flex flex-column flex-md-row align-items-md-center gap-2 flex-grow-1">
+
+                        <form id="importForm" action="{{ route('certificates.import') }}" method="POST"
+                            enctype="multipart/form-data" class="d-flex flex-column">
                             @csrf
-                            <input type="file" name="file" accept=".csv" class="form-control" required>
-                            <button class="btn btn-action btn-primary">
-                                <i class="fa-solid fa-upload"></i> Import CSV
-                            </button>
+                            <label for="importFile"
+                                class="import-dropzone d-flex flex-column align-items-center justify-content-center text-center gap-2 mb-3">
+                                <div class="import-dropzone-icon">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-semibold text-primary">Click to browse</span>
+                                    <span class="text-muted"> or drag & drop a file here</span>
+                                </div>
+                                <span id="importFileName" class="text-muted small">No file selected</span>
+                                <input type="file" id="importFile" name="file" accept=".csv,.xlsx,.xls"
+                                    class="d-none" required>
+                            </label>
+
+                            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                <ul class="import-requirements">
+                                    <li><i class="fa-solid fa-check text-success"></i>Accepted formats: CSV, XLSX,
+                                        XLS</li>
+                                    <li><i class="fa-solid fa-check text-success"></i>First row should contain
+                                        column headers</li>
+                                </ul>
+                                <button type="submit" class="btn btn-action btn-primary flex-shrink-0">
+                                    <i class="fa-solid fa-upload"></i> Import
+                                </button>
+                            </div>
                         </form>
-                        <span class="text-muted small mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>CSV
-                            file import only.</span>
                     </div>
                 </div>
             </div>
@@ -504,6 +558,42 @@
             // 5) When Apply Filters button is clicked, reload the DataTable
             $('#filterBtn').on('click', function() {
                 table.ajax.reload();
+            });
+
+            // 6) Import dropzone: filename preview + drag & drop support
+            const $dropzone = $('.import-dropzone');
+            const $fileInput = $('#importFile');
+            const $fileName = $('#importFileName');
+
+            function showFileName(files) {
+                if (files && files.length) {
+                    $fileName.text(files[0].name).removeClass('text-muted').addClass('fw-semibold text-primary');
+                } else {
+                    $fileName.text('No file selected').removeClass('fw-semibold text-primary').addClass(
+                        'text-muted');
+                }
+            }
+
+            $fileInput.on('change', function() {
+                showFileName(this.files);
+            });
+
+            $dropzone.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('is-dragover');
+            });
+
+            $dropzone.on('dragleave drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('is-dragover');
+            });
+
+            $dropzone.on('drop', function(e) {
+                const files = e.originalEvent.dataTransfer.files;
+                if (files && files.length) {
+                    $fileInput[0].files = files;
+                    showFileName(files);
+                }
             });
         });
     </script>
