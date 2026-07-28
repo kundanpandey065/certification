@@ -91,9 +91,8 @@
                             <img src="{{ $signature1 }}" style="width:120px;">
                         </div>
                         <div style="text-align: center;margin-top: -10px;">
-                            <p style="font-weight: 600;line-height: 0.5;margin-bottom: 0;font-size: 17px;">Prof.
-                                Rishipal Anand</p>
-                            <p style="font-size:16px;line-height: 0.3;margin-bottom: 0;font-weight: 600;">Controller of
+                            <p style="font-weight: 600;line-height: 0.5;margin-bottom: 0;font-size: 17px;"> Prof. Dr. Rajesh Kumar</p>
+                            <p style="font-size:16px;line-height: 0.3;margin-bottom: 0;font-weight: 600;">Controllers of
                                 Examination</p>
                             <p style="font-size:12px;line-height: 0.3;margin-bottom: 0;font-weight: 600;">Shri Vishwakarma Skill
                                 University, Palwal</p>
@@ -104,7 +103,7 @@
                             <img src="{{ $signature2 }}" style="width:120px;">
                         </div>
                         <div style="text-align: center;margin-top: -10px;">
-                            <p style="font-weight: 600;line-height: 0.5;margin-bottom: 0;font-size: 17px;">Dr. Munish Nagpal, IAS  </p>
+                            <p style="font-weight: 600;line-height: 0.5;margin-bottom: 0;font-size: 17px;">Munish Sharma, IAS  </p>
                             <p style="font-size:16px;line-height: 0.3;margin-bottom: 0;font-weight: 600;">Secretary</p>
                             <p style="font-size:12px;line-height: 0.3;margin-bottom: 0;font-weight: 600;">Board of School Education,
                                 Haryana, Bhiwani </p>

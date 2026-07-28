@@ -91,8 +91,9 @@
                             <img src="{{ $signature1 }}" style="width:120px;">
                         </div>
                         <div style="text-align: center;margin-top: -10px;">
-                            <p style="font-weight: 600;line-height: 0.5;margin-bottom: 0;font-size: 17px;">Prof.
-                                Rishipal Anand</p>
+                            <p style="font-weight: 600;line-height: 0.5;margin-bottom: 0;font-size: 17px;">
+                                Prof. Dr. Rajesh Kumar
+                                </p>
                             <p style="font-size:16px;line-height: 0.3;margin-bottom: 0;font-weight: 600;">Controller of
                                 Examination</p>
                             <p style="font-size:12px;line-height: 0.3;margin-bottom: 0;">Shri Vishwakarma Skill
